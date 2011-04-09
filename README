@@ -1,0 +1,19 @@
+Make your photo look like Obama's famous poster.
+
+Usage:
+
+  ./obamafy.py original_photo [obamafied_photo]
+
+To adjust the way resulting colors are combined fine-tune the following
+parameters:
+
+  --posterization [default = 3]   shrink number of bits per color to this value
+  --contrast      [default = 5.0] enhance picture contrast (1.0 is identity)
+  --median        [default = 5]   radius of median filter applied
+
+To change the way color values are chosen use these parameters:
+
+  --dark-blue [default = 0.15] threshold for dark-blue color
+  --red       [default = 0.5]  threshold for red color
+
+Have fun!

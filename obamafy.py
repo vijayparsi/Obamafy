@@ -24,7 +24,7 @@ from PIL import Image, ImageEnhance, ImageOps, ImageColor, ImageFilter
 import numpy
 
 
-WHITE     = ImageColor.getrgb('#ffffff')
+WHITE     = ImageColor.getrgb('#fce4a8')
 RED       = ImageColor.getrgb('#d71a20')
 DARK_BLUE = ImageColor.getrgb('#00314c')
 BLUE      = ImageColor.getrgb('#70969f')

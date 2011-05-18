@@ -15,6 +15,7 @@
 
 import os.path
 import math
+import operator
 
 from sys import exit, stderr
 from argparse import ArgumentParser
@@ -50,38 +51,58 @@ def distance(a, b):
     return abs(a - b) / 255.0
 
 def make_color_table(image, config):
-    colors = map(lambda x: x[1],
-                 sorted(image.getcolors(),
-                        key=lambda (count, color): color))
+    colors = sorted(image.getcolors(), key=lambda (count, color): color)
 
     table = {}
     state = 'darkest'
 
-    dark_blue = None
-    red       = None
     blue      = None
 
-    for color in colors:
+    area    = 0
+    residue = 0
+    overall_area = reduce(operator.add, map(lambda x: x[0], colors))
+
+    percents = {}
+
+    for count, color in colors:
+        percent = 100 * (area / float(overall_area))
+
         if state == 'darkest':
             dark_blue    = color
             table[color] = DARK_BLUE
             state = 'dark-blue'
         elif state == 'dark-blue':
-            if distance(color, dark_blue) < config.dark_blue:
+            if percent < config.dark_blue:
                 table[color] = DARK_BLUE
             else:
                 table[color] = RED
-                red          = color
                 state        = 'red'
+
+                percents['dark-blue'] = percent
+
+                area   *= (percent - config.dark_blue) / 100.0
+                residue = percent - config.dark_blue
         elif state == 'red':
-            if distance(color, red) < config.red:
+            if percent < config.red:
                 table[color] = RED
             else:
                 table[color] = BLUE
                 blue         = color
                 state        = 'blue'
+
+                percents['red'] = percent - residue
         else:                   # state == 'blue'
             table[color] = interpolate(BLUE, WHITE, blue, color)
+
+        area += count
+
+    stderr.write("Color profile:\n"
+                 "\tdark blue: %.2f%%\n"
+                 "\tred:       %.2f%%\n"
+                 "\tthe rest:  %.2f%%\n" %
+                 (percents['dark-blue'],
+                  percents['red'],
+                  100 - percents['dark-blue'] - percents['red']))
 
     return table
 
@@ -118,8 +139,8 @@ def obamafy(path, out_path, config):
 
     image_array = numpy.dstack(transform(image_array))
 
-    obamified = Image.fromarray(image_array)
-    obamified.save(get_out_path(path, out_path))
+    obamafied = Image.fromarray(image_array)
+    obamafied.save(get_out_path(path, out_path))
 
 def path(string):
     if not os.path.exists(string):
@@ -135,6 +156,14 @@ def even(str):
 
     return n
 
+def percent(str):
+    n = int(str)
+
+    if n >= 0 and n < 100:
+        return n
+    else:
+        raise ValueError("Invalid value per cent value %d" % n)
+
 def main():
     parser = ArgumentParser(description='Obamafy your photo')
 
@@ -146,11 +175,10 @@ def main():
                         type=int, default=3, dest='posterization',
                         help='posterize to specified number of bits per color')
     parser.add_argument('--dark-blue',
-                        type=float, default=0.15, dest='dark_blue',
-                        help='dark-blue color threshold')
-    parser.add_argument('--red', type=float, default=0.5, dest='red',
-                        help='red color threshold')
-    parser.add_argument('--median', type=even, default=5, dest='median',
+                        type=percent, default=20, dest='dark_blue')
+    parser.add_argument('--red',
+                        type=percent, default=30, dest='red')
+    parser.add_argument('--median', type=even, default=3, dest='median',
                         help='median filter size')
 
     args = parser.parse_args()

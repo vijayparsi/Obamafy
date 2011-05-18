@@ -12,7 +12,7 @@ parameters:
 
 To change the way color values are chosen use these parameters:
 
-  --dark-blue [default = 0.15] threshold for dark-blue color
-  --red       [default = 0.5]  threshold for red color
+  --dark-blue [default = 20] percent of picture to be colored with dark blue
+  --red       [default = 30] percent of picture to be colored with red
 
 Have fun!

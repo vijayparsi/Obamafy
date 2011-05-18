@@ -8,8 +8,7 @@ To adjust the way resulting colors are combined fine-tune the following
 parameters:
 
   --posterization [default = 3]   shrink number of bits per color to this value
-  --contrast      [default = 5.0] enhance picture contrast (1.0 is identity)
-  --median        [default = 5]   radius of median filter applied
+  --median        [default = 5]   radius of median filter
 
 To change the way color values are chosen use these parameters:
 

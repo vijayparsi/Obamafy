@@ -106,7 +106,6 @@ def obamafy(path, out_path, config):
     image = Image.open(path)
 
     image = ImageOps.posterize(image, config.posterization)
-    image = enhance(image, ImageEnhance.Contrast, config.contrast)
     image = image.filter(ImageFilter.MedianFilter(size=config.median))
     image = ImageOps.grayscale(image)
 
@@ -153,8 +152,6 @@ def main():
                         help='red color threshold')
     parser.add_argument('--median', type=even, default=5, dest='median',
                         help='median filter size')
-    parser.add_argument('--contrast', type=float, default=5.0, dest='contrast',
-                        help='contrast enhancement factor')
 
     args = parser.parse_args()
 

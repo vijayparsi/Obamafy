@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ from argparse import ArgumentParser
 from PIL import Image, ImageEnhance, ImageOps, ImageColor, ImageFilter
 
 import numpy
+from functools import reduce
 
 
 WHITE     = ImageColor.getrgb('#fce4a8')
@@ -44,14 +45,13 @@ def luminance(rgb):
 def interpolate(src, dst, base, color):
     a = math.sqrt((color - base) / (luminance(dst) - luminance(src)))
 
-    return tuple(map(lambda (x, y): min(255, int(x + a * (y - x))),
-                     zip(src, dst)))
+    return tuple([min(255, int(x_y[0] + a * (x_y[1] - x_y[0]))) for x_y in zip(src, dst)])
 
 def distance(a, b):
     return abs(a - b) / 255.0
 
 def make_color_table(image, config):
-    colors = sorted(image.getcolors(), key=lambda (count, color): color)
+    colors = sorted(image.getcolors(), key=lambda count_color: count_color[1])
 
     table = {}
     state = 'darkest'
@@ -60,7 +60,7 @@ def make_color_table(image, config):
 
     area    = 0
     residue = 0
-    overall_area = reduce(operator.add, map(lambda x: x[0], colors))
+    overall_area = reduce(operator.add, [x[0] for x in colors])
 
     percents = {}
 
